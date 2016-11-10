@@ -9,13 +9,15 @@
 #import <UIKit/UIKit.h>
 
 @interface CustomDetailTableViewCell : UITableViewCell
-@property (strong, nonatomic) IBOutlet UILabel *labelPlaceName;
-@property (strong, nonatomic) IBOutlet UILabel *labelDistance;
+@property (strong, nonatomic) IBOutlet UILabel *labelOne;
+@property (strong, nonatomic) IBOutlet UILabel *labelTwo;
 
-@property (strong, nonatomic) IBOutlet UILabel *labelOpenClose;
+@property (strong, nonatomic) IBOutlet UILabel *labelThree;
 
-@property (strong, nonatomic) IBOutlet UILabel *labelAddress;
-@property (strong, nonatomic) IBOutlet UILabel *labelReview;
+@property (strong, nonatomic) IBOutlet UILabel *labelFour;
+@property (strong, nonatomic) IBOutlet UILabel *labelFive;
+
+@property (strong, nonatomic) IBOutlet UILabel *labelSix;
 
 
 @end

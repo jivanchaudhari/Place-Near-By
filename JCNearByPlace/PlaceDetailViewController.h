@@ -10,11 +10,18 @@
 #import <MapKit/MapKit.h>
 
 
-@interface PlaceDetailViewController : ViewController<UITableViewDelegate,UITableViewDataSource,MKMapViewDelegate>
+@interface PlaceDetailViewController : ViewController<UITableViewDelegate,UITableViewDataSource,MKMapViewDelegate,NSXMLParserDelegate>
+
 {
-    NSArray *placeDetail;
+    NSMutableArray *placeDetail;
+    NSXMLParser *parser;
+    NSString *dataString;
+    NSDictionary *detailDictionary;
+   // NSDictionary *detailData;
+    double photoWidth;
     
 }
+@property NSString *selectedPlaceDetail;
 
 
 @property NSString *selectedPlaceID;
@@ -23,11 +30,11 @@
 @property NSString *selectedPhotoReference;
 @property NSString *selectedPhotoWidth;
 
+@property (strong, nonatomic) IBOutlet MKMapView *myMapView;
 
 
 
 
-@property (strong, nonatomic) IBOutlet MKMapView *myMapapView;
 @property (strong, nonatomic) IBOutlet UIImageView *imageView;
 @property (strong, nonatomic) IBOutlet UITableView *detailTableView;
 

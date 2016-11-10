@@ -182,7 +182,7 @@
     
     NSMutableDictionary *tempDictionary = [placeList objectAtIndex:indexPath.row];
     
-    NSLog(@"%@",tempDictionary);
+   // NSLog(@"%@",tempDictionary);
     
     NSString *placeName = [tempDictionary valueForKey:@"name"];
     NSString *address = [tempDictionary valueForKey:@"vicinity"];
@@ -198,6 +198,11 @@
     
     
     cell.labelAddress.text = address;
+    
+    cell.labelAddress.lineBreakMode =NSLineBreakByWordWrapping;
+    
+    cell.labelAddress .numberOfLines = 5;
+    
     
     cell.labelAddress.textColor = [UIColor darkGrayColor];
     
@@ -217,7 +222,7 @@
     
 }
 -(void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary<NSString *,NSString *> *)attributeDict {
-    
+        
     if ([elementName isEqualToString:@"result"]) {
         placeDictionary = [[NSMutableDictionary alloc]init];
     }
