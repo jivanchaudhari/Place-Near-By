@@ -10,9 +10,9 @@
 #import <CoreLocation/CoreLocation.h>
 
 #define kGoogleAPIKey @"AIzaSyDAYKFQOgnZZf40Z01qhu1VWNQ281Xh6Rk"
-#define kLatitude 19.0760
+#define kLatitude 18.6333 
 
-#define kLongitude 72.8777
+#define kLongitude 73.8051
 
 
 

@@ -23,10 +23,29 @@
     
     placeDetail = [[NSMutableArray alloc]init];
     
+   
+    CLLocationCoordinate2D location = self.myMapView.userLocation.coordinate;
+    
+    MKCoordinateRegion region;
+    
+    location.latitude = self.selectedPlaceLat.intValue;
+    
+    location.longitude = self.selectedPlaceLng.intValue;
+    
+    MKPointAnnotation *pointAnnotation = [[MKPointAnnotation alloc]init];
+    
+    pointAnnotation.coordinate = location;
+    
+    [self.myMapView addAnnotation:pointAnnotation];
+    
+    region.center = location;
+    
     photoWidth = self.selectedPhotoWidth.intValue;
+    photoRef = self.selectedPhotoReference;
     
     
-    [self getPlaceDetailAPIKey:kGoogleAPIKey photoReference:self.selectedPhotoReference width:photoWidth];
+    [self getPlaceDetailAPIKey:kGoogleAPIKey photoReference:photoRef width:photoWidth];
+    
     
     
     [self getPlaceDetilWithAPIKey:kGoogleAPIKey placeType: self.selectedPlaceID];
@@ -117,13 +136,13 @@
     
 }
 -(void)getPlaceDetailAPIKey:(NSString *)key
-             photoReference:(NSString *) photoReference
+             photoReference:(NSString *) photoReferences
                       width: (double)width {
     
    // https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=CnRtAAAATLZNl354RwP_9UKbQ_5Psy40texXePv4oAlgP4qNEkdIrkyse7rPXYGd9D_Uj1rVsQdWT4oRz4QrYAJNpFX7rzqqMlZw2h2E2y5IKMUZ7ouD_SlcHxYq1yL4KbKUv3qtWgTK0A6QbGh87GB3sscrHRIQiG2RrmU_jF4tENr9wGS_YxoUSSDrYjWmrNfeEHSGSc3FyhNLlBU&key=YOUR_API_KEY
    
     
-    NSString *urlString = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/place/photo?maxwidth=%f&photoreference=%@&key=%@",width,photoReference,key];
+    NSString *urlString = [NSString stringWithFormat:@"https://maps.googleapis.com/maps/api/place/photo?maxwidth=%f&photoreference=%@&key=%@",width,photoReferences,key];
 
     NSLog(@"%@",urlString);
     
@@ -131,10 +150,10 @@
     
     NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
     
-    NSURLSessionDataTask *task =[session dataTaskWithURL:url completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    NSURLSessionDownloadTask *task = [session downloadTaskWithURL:url completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
     
         if (error) {
-            //al
+            //alert
             
         }
         else {
@@ -144,18 +163,27 @@
                 
                 if (httpResponce.statusCode == 200) {
                     
-                    if (data) {
-                        
-                        parser = [[NSXMLParser alloc]initWithData:data];
-                        parser.delegate = self;
-                        [parser parse];
-                    }
-                    else {
-                        //alert
-                    }
+                    NSData *imageData = [NSData dataWithContentsOfURL:location];
+                    
+                    UIImage *image = [UIImage imageWithData:imageData];
+                    
+ 
+                    [self performSelectorOnMainThread:@selector(updateImage:) withObject:image waitUntilDone:NO];
+                    
+                    NSLog(@"%@ hi",imageData);
+                    
                 }
                 
                 else {
+                    NSLog(@"%ld",(long)httpResponce.statusCode);
+                    NSData *imageData = [NSData dataWithContentsOfURL:location];
+                    
+                    UIImage *image = [UIImage imageWithData:imageData];
+                    
+                    
+                    [self performSelectorOnMainThread:@selector(updateImage:) withObject:image waitUntilDone:NO];
+                    
+
                     //alert
                 }
             }
@@ -167,6 +195,11 @@
     }];
     
     [task resume];
+    
+}
+-(void)updateImage :(UIImage *) image {
+    
+    self.imageView.image = image;
     
 }
 
@@ -193,7 +226,7 @@
     NSLog(@"%@",placeName);
     
     NSString *address = [tempDictionary valueForKey:@"vicinity"];
-    NSString *placeID = [tempDictionary valueForKey:@"place_id"];
+    NSString *phoneNumber = [tempDictionary valueForKey:@"formatted_phone_number"];
     
     NSString *reviewName = [tempDictionary valueForKey:@"author_name"];
    
@@ -223,11 +256,12 @@
     cell.labelOne.text = placeName;
     
     
-    cell.labelTwo.text = placeID;
-    cell.labelThree.text = address;
-    cell.labelThree.lineBreakMode =NSLineBreakByWordWrapping;
+    cell.labelThree.text = phoneNumber;
     
-    cell.labelThree .numberOfLines = 5;
+    cell.labelTwo.text = address;
+    //cell.labelTwo.lineBreakMode =NSLineBreakByWordWrapping;
+    
+    //cell.labelTwo .numberOfLines = 5;
     
     cell.labelFour.text = reviewName;
     
@@ -257,24 +291,19 @@
     else if ([elementName isEqualToString:@"formatted_phone_number"]) {
         dataString = [[NSMutableString alloc]init];
     }
+    else if ([elementName isEqualToString:@"review"]) {
+        dataString = [[NSMutableString alloc]init];
+        
+    }
     else if ([elementName isEqualToString:@"author_name"]) {
         dataString = [[NSMutableString alloc]init];
     }
+
     else if ([elementName isEqualToString:@"time"]) {
         dataString = [[NSMutableString alloc]init];
     }
     else if ([elementName isEqualToString:@"text"]) {
         dataString = [[NSMutableString alloc]init];
-    }
-    else if ([elementName isEqualToString:@"photo_reference"]) {
-        
-        dataString = [[NSMutableString alloc]init];
-        
-    }
-    else if ([elementName isEqualToString:@"width"]) {
-        
-        dataString = [[NSMutableString alloc]init];
-        
     }
     
 
@@ -301,11 +330,22 @@
         [detailDictionary setValue:dataString forKey:@"vicinity"];
         
     }
+    else if ([elementName isEqualToString:@"formatted_phone_number"]) {
+        
+        [detailDictionary setValue:dataString forKey:@"formatted_phone_number"];
+        
+    }
+    else if ([elementName isEqualToString:@"review"]) {
+        
+        [detailDictionary setValue:dataString forKey:@"review"];
+        
+    }
     else if ([elementName isEqualToString:@"author_name"]) {
         
         [detailDictionary setValue:dataString forKey:@"author_name"];
         
     }
+   
     else if ([elementName isEqualToString:@"text"]) {
         
         [detailDictionary setValue:dataString forKey:@"text"];
@@ -316,47 +356,24 @@
         
     
     }
-    else if ([elementName isEqualToString:@"photo"]) {
         
-        [detailDictionary setValue:dataString forKeyPath:@"photo.photo_reference"];
-        
-        
-    }
-    else if ([elementName isEqualToString:@"width"]) {
-        
-        [detailDictionary setValue:dataString forKey:@"width"];
-        
-        
-    }
+    
     else if([elementName isEqualToString:@"PlaceDetailsResponse"]){
         
         
         [self performSelectorOnMainThread:@selector(updateTableView) withObject:nil waitUntilDone:NO];
         
     }
+    
+    
+ 
 
 }
 -(void)updateTableView {
     
     [self.detailTableView reloadData];
-    [self imageURL];
     
     
-}
--(void)imageURL {
-    
-    
-
-    NSString *imgURL;
-     
-    [imgURL setValue:dataString forKeyPath:@"photo_reference"];
-    
-    NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:imgURL]];
-    
-    [self.imageView setImage:[UIImage imageWithData:data]];
-    
-    NSLog(@"%@",data);
-
 }
 
 

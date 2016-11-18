@@ -199,13 +199,7 @@
     
     cell.labelAddress.text = address;
     
-    cell.labelAddress.lineBreakMode =NSLineBreakByWordWrapping;
-    
-    cell.labelAddress .numberOfLines = 5;
-    
-    
-    cell.labelAddress.textColor = [UIColor darkGrayColor];
-    
+   
     cell.labelAddress.font = [UIFont systemFontOfSize:15];
     
     

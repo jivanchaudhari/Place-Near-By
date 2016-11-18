@@ -17,8 +17,10 @@
     NSXMLParser *parser;
     NSString *dataString;
     NSDictionary *detailDictionary;
-   // NSDictionary *detailData;
-    double photoWidth;
+
+    
+    int photoWidth;
+    NSString *photoRef;
     
 }
 @property NSString *selectedPlaceDetail;
